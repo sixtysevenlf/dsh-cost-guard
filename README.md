@@ -87,6 +87,7 @@ dev_inject_plugin D:\DSH\测试\优化\dsh-cost-guard
 - **错峰队列**：queued/running/done/failed 状态实时刷新；
 - **延期结果**：cost_defer 产出的结果摘要（前 160 字符 + 用量）；
 - **启用开关**：每个项目一键切换 `enabled`（持久化到 `~/.dsh/cost-guard/config.json` 的 `projects` 字段），停用时该项目引导/队列/daemon 全部静默。
+- **删除项目**：项目分组中每行右侧有红色「删除」按钮（二次确认）——从统计中彻底移除该项目：清除该目录全部会话的 ledger 历史（今日/本周/本月统计随之减少）、项目级开关与预算配置，并清空相关缓存。注意：项目 = 工作目录，删除后在该目录新开的会话会重新出现在分组中。
 
 面板数据源：`GET /cost-guard/api/state`（同源 fetch，8s 轮询）；开关调 `POST /cost-guard/api/enable`。
 
