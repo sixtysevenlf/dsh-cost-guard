@@ -1,6 +1,6 @@
 # dsh-cost-guard 安装包说明
 
-**文件**：`dsh-external-dsh-cost-guard-0.1.16.tgz`（29 kB，npm 标准 tarball）
+**文件**：`dsh-external-dsh-cost-guard-0.1.17.tgz`（29 kB，npm 标准 tarball）
 **内容**：成本守卫插件（lib/ + cordis.patch.yml）
 **兼容**：@deepseek-ai/dsh ≥ 0.1.0-rc.7；模型计价针对 DeepSeek V4-Flash（Pro 自动按 3× 选档）
 
@@ -11,7 +11,7 @@
 **方式 A：dsh CLI 安装（推荐，重启后自动装配）**
 
 ```bash
-dsh plugin --profile web add /path/to/dsh-external-dsh-cost-guard-0.1.16.tgz
+dsh plugin --profile web add /path/to/dsh-external-dsh-cost-guard-0.1.17.tgz
 ```
 
 然后在 profile 的 `package.json` 的 `dsh.profile.bundles` 中追加包名 `@dsh-external/dsh-cost-guard`，重启 dsh 生效。
