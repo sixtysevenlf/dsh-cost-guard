@@ -90,9 +90,9 @@ dev_inject_plugin D:\DSH\测试\优化\dsh-cost-guard
 
 面板数据源：`GET /cost-guard/api/state`（同源 fetch，8s 轮询）；开关调 `POST /cost-guard/api/enable`。
 
-> ⚠️ **首次启用面板需重启一次 web**：client-modules 的 `pkgMeta` 会缓存解析失败结果
-> （Map 常驻、无失效入口）。若在加 `dsh.client` 声明前注入过，该 `null` 缓存会拦住面板注册，
-> 直到 host 重启清零。重启后注入器 autoRestore 重新 create + 补扫，面板即注册；再刷新页面即可见。
+> ⚠️ **面板注册靠重启**：client-modules 对包元数据按名缓存、**永不过期**——插件集变化需**重启 web** 生效（harness 设计）。正常安装（`dsh plugin add` / `dev_install_package` + 重启）后面板与「收敛」按钮自动注册；热注入（`dev_inject_plugin`）场景如未出现，请重启 web 一次。
+>
+> ✅ **兼容性（v0.1.17）**：移除旧版基于越权访问 `dsh-client-modules` 私有 API（`processOne`/`composed`/`notifyGraphChanged`）的「开机自愈」——它会在运行时手动重算并广播整个 client 插件图，时序不可控，可能打乱 `window.__DSH_BOOT__`、导致**其他 UI 插件消失**。现在只依赖 harness 的标准装配，不再触碰任何内部状态。
 
 
 ## 测试报告与使用说明
