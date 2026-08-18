@@ -1,6 +1,6 @@
 {
   "name": "@dsh-external/dsh-cost-guard",
-  "version": "0.1.6",
+  "version": "0.1.7",
   "description": "成本守卫：对 DeepSeek V4-Flash-0731 纯 API 计价的省钱插件——按官方 2026-08-17 峰谷费率核算会话成本、缓存命中率与全命中可省金额；¥ 预算守卫（超支近场引导）；峰谷感知与错峰队列（cost_defer daemon 空闲时段自动执行）；收敛/深度/错峰引导注入。零依赖，前缀缓存中性，宿主平面装配在现有 preset/mode-boost 之上。",
   "private": false,
   "type": "module",
