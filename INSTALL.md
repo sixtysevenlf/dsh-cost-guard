@@ -1,7 +1,7 @@
 # dsh-cost-guard 安装包说明
 
-**文件**：`dsh-external-dsh-cost-guard-0.1.10.tgz`（36 kB，npm 标准 tarball）
-**内容**：成本守卫插件（lib/ + cordis.patch.yml）+ 「Router Flash + 成本守卫」预设（preset/router-flash-cg）
+**文件**：`dsh-external-dsh-cost-guard-0.1.13.tgz`（34 kB，npm 标准 tarball）
+**内容**：成本守卫插件（lib/ + cordis.patch.yml）
 **兼容**：@deepseek-ai/dsh ≥ 0.1.0-rc.7；模型计价针对 DeepSeek V4-Flash（Pro 自动按 3× 选档）
 
 ---
@@ -11,7 +11,7 @@
 **方式 A：dsh CLI 安装（推荐，重启后自动装配）**
 
 ```bash
-dsh plugin --profile web add /path/to/dsh-external-dsh-cost-guard-0.1.10.tgz
+dsh plugin --profile web add /path/to/dsh-external-dsh-cost-guard-0.1.13.tgz
 ```
 
 然后在 profile 的 `package.json` 的 `dsh.profile.bundles` 中追加包名 `@dsh-external/dsh-cost-guard`，重启 dsh 生效。
@@ -22,20 +22,14 @@ dsh plugin --profile web add /path/to/dsh-external-dsh-cost-guard-0.1.10.tgz
 dev_inject_plugin /解压后的插件目录
 ```
 
-## 2. 安装「成本守卫」预设（可选但推荐）
+## 2. 开局收敛（输入框按钮）
 
-新会话选择该预设 = 从第一轮起自动启用成本守卫（项目级开关自动写入）：
-
-```bash
-# 把 tarball 里的 preset/router-flash-cg 目录复制到用户预设目录：
-#   ~/.dsh/.agent-presets/router-flash-cg/
-```
-
-复制后新会话的预设列表会出现「Router Flash + 成本守卫」，选中即可。
+消息输入框右侧（发送按钮旁）会出现「**收敛**」按钮：点击立即对当前会话注入一次收敛引导
+（少探索、直接交付），按钮短暂变绿显示「已收敛 ✓」。手动控制、随时可点，与守卫开关无关。
 
 ## 3. 启用与预算
 
-- 预设选中即启用（推荐）；或任一会话里调用工具 `cost_enable on`；或直接编辑 `~/.dsh/cost-guard/config.json`：
+- 任一会话里调用工具 `cost_enable on`、面板「项目」开关，或直接编辑 `~/.dsh/cost-guard/config.json`：
 
 ```json
 {
@@ -67,4 +61,4 @@ dev_inject_plugin /解压后的插件目录
 
 ## 6. 验证
 
-安装后新开一个会话，调用 `cost_status`，应返回 enabled 状态、项目路径、费率与用量统计；GUI 左下角/监控面板可见 `成本守卫` 面板。
+安装后新开一个会话，调用 `cost_status`，应返回 enabled 状态、项目路径、费率与用量统计；GUI 左下角/监控面板可见 `成本守卫` 面板，输入框右侧可见「收敛」按钮。

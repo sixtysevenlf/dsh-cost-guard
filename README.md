@@ -60,20 +60,18 @@ dev_inject_plugin D:\DSH\测试\优化\dsh-cost-guard
 > 与 mode-boost/router 的分工：它们管「用哪种思维模式/风格」；cost-guard 管「钱包」。
 > 不要向 system 注入动态内容（会整会话缓存 miss，吞噬 30× 红利）——动态信号一律走消息尾。
 
-## 新会话选择启用（预设方式）
+## 开局收敛（输入框按钮）
 
-成本守卫支持**项目级开关**（项目 = 会话的工作目录 `cwd`，同一目录下的所有会话共享开关/预算），
-可在建会话时选定：
+**消息输入框右侧新增「收敛」按钮**（发送按钮旁）：点击立即对当前会话注入一次收敛引导
+（"用最少的额外步骤完成当前目标——批量读取、复用上下文已有信息、现在就产出。每次工具调用都是计费动作"），
+按钮短暂变绿显示「已收敛 ✓」。手动控制、随时可点，与守卫开关无关。
 
-1. 把随插件附带的预设复制到用户目录（只需一次）：
-   ```powershell
-   Copy-Item -Recurse 'D:\DSH\测试\优化\dsh-cost-guard\preset\router-flash-cg' "$env:USERPROFILE\.dsh\.agent-presets\router-flash-cg"
-   ```
-2. 重启 DSH，新建会话时选择 **「Router Flash + 成本守卫 (opencode-go)」** —— 该预设 = router-flash
-   （Flash w7 路由）+ `cost-guard-enable` 行：首轮 assemble 即 emit 项目级启用事件，**从第一轮起**
-   预算守卫/峰谷/错峰队列/近场引导全部生效。选原 router-flash = 不开。
+## 启用（项目级开关）
 
-**项目级开关的优先级**：项目显式设置（预设行 / 面板「项目」开关 / `cost_enable` 工具）> 全局默认
+成本守卫支持**项目级开关**（项目 = 会话的工作目录 `cwd`，同一目录下的所有会话共享开关/预算）：
+面板「项目」开关 / 工具 `cost_enable {mode: on|off|auto}` / 直接编辑 `~/.dsh/cost-guard/config.json` 的 `projects` 字段。
+
+**项目级开关的优先级**：项目显式设置（面板「项目」开关 / `cost_enable` 工具）> 全局默认
 （面板「全局」开关，持久化 `config.json` 的 `projects` 字段）。面板标题栏现在是两个开关：「项目」+「全局」；
 工具 `cost_enable {mode: on|off|auto}` 可在会话中途切换（auto = 清除该项目设置，回落全局默认）。
 每个项目可独立设置 `cost_budget`，互不影响。
