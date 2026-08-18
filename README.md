@@ -99,5 +99,5 @@ dev_inject_plugin D:\DSH\测试\优化\dsh-cost-guard
 
 - 两轮对比测试报告（成本守卫 vs 无守卫，含收敛省钱原理与分轮数据）：[docs/测试报告.md](docs/测试报告.md)
 - 安装与使用说明：[INSTALL.md](INSTALL.md)
-- 可分发的安装包：GitHub Release 附件 `dsh-external-dsh-cost-guard-0.1.10.tgz`（npm pack 产物，`dsh plugin --profile web add <tgz>` 安装）
+- 可分发的安装包：GitHub Release 附件 `dsh-external-dsh-cost-guard-0.1.13.tgz`（npm pack 产物，`dsh plugin --profile web add <tgz>` 安装）
 
