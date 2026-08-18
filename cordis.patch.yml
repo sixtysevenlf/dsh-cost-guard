@@ -1,0 +1,7 @@
+# @dsh-external/dsh-cost-guard bundle patch
+# 在 profile 装配树插入插件行，使 host（node half）加载 lib/index.js，
+# 并经 dsh.client 声明把 lib/client.js 编入浏览器启动图。
+- insert:
+    - id: cost-guard
+      name: '@dsh-external/dsh-cost-guard'
+      config: {}
