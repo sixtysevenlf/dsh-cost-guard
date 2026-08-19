@@ -235,16 +235,19 @@ export function apply(ctx: Context, config: Config): void {
   const effMax = (sid?: string | null) => (isTight(sid) ? config.tightMaxChars : config.maxChars)
   const effHead = (sid?: string | null) => (isTight(sid) ? config.tightHeadChars : config.headChars)
   const effTail = (sid?: string | null) => (isTight(sid) ? config.tightTailChars : config.tailChars)
-  // 成本守卫托管开关：guardStatePath 非空 → 由 optab.json.enabled 门控（2s 缓存）；空 → 恒开
-  let guardCache = { t: 0, v: true }
-  const optabOn = (): boolean => {
+  // 成本守卫托管开关（会话级）：guardStatePath 非空 → 读 optab.json
+  //   { enabled: 全局默认, sessions: { <sessionId>: bool } }；按当前会话命中 sessions 优先，否则回落全局默认；空 → 恒开
+  const guardCacheMap = new Map<string, { t: number; v: boolean }>()
+  const optabOn = (sessionId?: string | null): boolean => {
     if (!config.guardStatePath) return true
     try {
       const now = Date.now()
-      if (now - guardCache.t < 2000) return guardCache.v
-      let v = false
-      try { v = Boolean(JSON.parse(fs.readFileSync(config.guardStatePath, 'utf8')).enabled) } catch { v = false }
-      guardCache = { t: now, v }
+      const key = sessionId ?? ''
+      const cached = guardCacheMap.get(key)
+      if (cached && now - cached.t < 2000) return cached.v
+      const j = JSON.parse(fs.readFileSync(config.guardStatePath, 'utf8'))
+      const v = sessionId ? Boolean(j?.sessions?.[sessionId] ?? j?.enabled) : Boolean(j?.enabled)
+      guardCacheMap.set(key, { t: now, v })
       return v
     } catch { return false }
   }
@@ -253,8 +256,8 @@ export function apply(ctx: Context, config: Config): void {
   record(null, 'state', { peak: peakNow, tight: tightNow, signal: config.budgetSignalPath, guardOwned: Boolean(config.guardStatePath), optabOn: optabOn() })
   ctx.on('agent/request' as any, async (_payload: any, next: any) => {
     const resolved = await next()
-    if (!optabOn()) return resolved
     const agent = _payload?.agent
+    if (!optabOn(agent?.session?.id)) return resolved
     const st = stateOf(agent?.session)
 
     let decided: string | null = null
@@ -299,9 +302,9 @@ export function apply(ctx: Context, config: Config): void {
   // ═══ ① 前缀瘦身 ═════════════════════════════════════════════════════════
   ctx.on('system-prompt/assemble' as any, async (_assembly: any, context: any, next: any) => {
     const assembled = await next()
-    if (!optabOn()) return assembled
-    const tools = assembled?.tools
     const agent = context?.agent
+    if (!optabOn(agent?.session?.id)) return assembled
+    const tools = assembled?.tools
     if (slimTools.size === 0 || !Array.isArray(tools) || tools.length === 0) return assembled
     const removed: string[] = []
     const kept = tools.filter((t: any) => {
@@ -325,7 +328,7 @@ export function apply(ctx: Context, config: Config): void {
   // ═══ ② 投影压缩（当步模型可见） ══════════════════════════════════════════
   ctx.on('tools/execute' as any, async (exec: any, next: any) => {
     const result = await next()
-    if (!optabOn()) return result
+    if (!optabOn(exec?.agent?.session?.id ?? exec?.agent?.id)) return result
     const toolName: string | undefined = exec?.name
     if (!config.compress || result?.isError === true) return result
     // wrapTools 为空 = 压缩所有文本型工具的结果（生产建议空=全开）
@@ -356,7 +359,7 @@ export function apply(ctx: Context, config: Config): void {
   const foldMap = new WeakMap<any, Array<{ seq: number }>>()
 
   ctx.on('session/event' as any, (session: any, event: any) => {
-    if (!optabOn()) return
+    if (!optabOn(session?.id)) return
     // —— 喂入档位状态：最近 user 文本 + 滚动推理量 ——
     if (config.effortMode === 'auto') {
       const st = stateOf(session)
