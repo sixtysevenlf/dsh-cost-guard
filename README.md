@@ -67,6 +67,33 @@ dev_inject_plugin D:\DSH\测试\优化\dsh-cost-guard
 - **再点一次** → 关闭：撤回未消费的引导消息，退出收敛模式；
 - 状态**持久化**（`session-budgets.json` 的 `converged` 字段），跨会话独立、重启后恢复。与守卫开关、自动深度分流无关。
 
+## dsh-optab（仓库子包 `optab/` · 输入框「优化」按钮）
+
+**`optab/`**（`@dsh-external/dsh-optab`）是并入本仓库的 token 级省钱插件，由成本守卫托管开关。
+消息输入框右侧「**优化**」按钮（「收敛」按钮旁）：点开=生效（按钮变绿显示「优化中」），再点=停用；
+状态持久化在 `~/.dsh/cost-guard/optab.json`（默认关，不影响任何会话）。
+
+**三层省 token**（全部确定性、前缀缓存友好、跨重启回放）：
+1. **前缀瘦身** `system-prompt/assemble`：滤除零调用工具 schema（实测每请求少 ≈3–4k token）；
+2. **工具输出双层压缩**：`tools/execute` 投影预览（>8k 字符只留确定性头尾）+ `session surfaceOp replace`
+   落库替换（全文存 `metricsDir/artifacts`，derive/replay 只见压缩字节）；
+3. **推理档位自动** `agent/request`：关键词/滚动推理量→max，常规→high（实测 high vs max 输出 -56~76%，质量全对）。
+
+**与成本守卫配合**：
+- **收敛 × 优化按会话**：同一会话点「收敛」→ 该会话自动进入 optab tight（档位强制 high + 阈值收紧），
+  只影响该会话、不误伤别的会话；重任务实测「收敛+优化」同开 ≈省 87%；
+- **峰时封顶**：`peakWindows`（默认 09-12/14-18）+ `peakMax:high` → 峰时 max→high（省 2× 峰价）；
+- **超支收紧**：`budgetSignalPath` 读到数值超支（cost≥budget）或 `converged` 命中当前会话 → 强制 tight；
+- **宿主 API**：`POST /cost-guard/api/optab {enabled}` + `/api/state` 返回 `optabEnabled`。
+
+**实测**（全量语料离线复算）：瘦身+全工具压缩 ≈9.4%；叠加档位 high ≈15–18%；档位 A/B 三任务×{high,max}
+客观全对、输出 -56%（详见 `optab/README.md` 与 Release 说明）。
+
+**构建/安装**：
+- 安装包：Release 附件 `dsh-external-dsh-optab-0.0.1.tgz`（`dsh plugin --profile web add <tgz>`）；
+- 源码构建：`cd optab && bash scripts/build.sh`（需 `DSH_CHECKOUT`；`lib/` 为构建产物、不入库）。
+
+
 ## 自动成本路由（原「自动深度分流」，与收敛/错峰自动配合，默认关）
 
 面板标题栏「**深度**」开关（或 `~/.dsh/cost-guard/config.json` 的 `config.autoDeep.enabled`）：

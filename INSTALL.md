@@ -1,7 +1,7 @@
 # dsh-cost-guard 安装包说明
 
-**文件**：`dsh-external-dsh-cost-guard-0.1.27.tgz`（32 kB，npm 标准 tarball）
-**内容**：成本守卫插件（lib/ + cordis.patch.yml）
+**文件**：`dsh-external-dsh-cost-guard-0.1.27.tgz`（38 kB，npm 标准 tarball）
+**内容**：成本守卫插件（lib/ + cordis.patch.yml）；随包装配 dsh-optab（子包 `optab/`，独立 tgz `dsh-external-dsh-optab-0.0.1.tgz`）
 **兼容**：@deepseek-ai/dsh ≥ 0.1.0-rc.7；模型计价针对 DeepSeek V4-Flash（Pro 自动按 3× 选档）
 
 ---
@@ -26,6 +26,16 @@ dev_inject_plugin /解压后的插件目录
 
 消息输入框右侧（发送按钮旁）会出现「**收敛**」按钮：点击立即对当前会话注入一次收敛引导
 （少探索、直接交付），按钮短暂变绿显示「已收敛 ✓」。手动控制、随时可点，与守卫开关无关。
+
+## 2b. dsh-optab（「优化」按钮，随包装配）
+
+输入框右侧还有「**优化**」按钮（收敛按钮旁）：**点开=启用 dsh-optab**（前缀瘦身 + 工具输出双层压缩 +
+推理档位自动，三层省 token，确定性、缓存友好），按钮变绿显示「优化中」；再点=停用。
+状态持久化 `~/.dsh/cost-guard/optab.json`，默认关、不影响会话。
+
+- **与收敛配合**：同一会话点「收敛」后，该会话自动进入 optab 收紧（档位强制 high + 阈值更短），只影响该会话。
+- 若单独安装 optab：`dsh plugin --profile web add dsh-external-dsh-optab-0.0.1.tgz`；源码见仓库 `optab/`（`cd optab && bash scripts/build.sh`）。
+- 详情见仓库 README「dsh-optab」章节与 Release 说明。
 
 ## 3. 启用与预算
 
