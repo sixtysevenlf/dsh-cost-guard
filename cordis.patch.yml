@@ -1,7 +1,36 @@
 # @dsh-external/dsh-cost-guard bundle patch
 # 在 profile 装配树插入插件行，使 host（node half）加载 lib/index.js，
 # 并经 dsh.client 声明把 lib/client.js 编入浏览器启动图。
+# 同时装配 dsh-optab（已整合进成本守卫）：默认由守卫托管关闭（optab.json.enabled=false），
+# 输入框「优化」按钮一键启用/停用；并接守卫超支信号（session-budgets.json）触发收紧。
 - insert:
     - id: cost-guard
       name: '@dsh-external/dsh-cost-guard'
       config: {}
+- insert:
+    - id: optab
+      name: '@dsh-external/dsh-optab'
+      config:
+        # web 端稳妥：不删工具（web agent 会用 subagent/workflow 等）；确属无用再加回 slimTools
+        slimTools: []
+        compress: true
+        durableCompress: true
+        wrapTools: []
+        maxChars: 8000
+        maxLines: 240
+        headChars: 4000
+        tailChars: 2000
+        effortMode: auto
+        defaultEffort: high
+        peakWindows: ["0900-1200", "1400-1800"]
+        peakMax: high
+        peakTzOffsetHours: 8
+        budgetSignalPath: "C:/Users/sixtyseven67/.dsh/cost-guard/session-budgets.json"
+        budgetSignalTtlMs: 0
+        tightEffort: high
+        tightMaxChars: 4000
+        tightHeadChars: 1500
+        tightTailChars: 800
+        # 成本守卫托管：非空 = 由 optab.json.enabled 门控（输入框「优化」按钮控制）
+        guardStatePath: "C:/Users/sixtyseven67/.dsh/cost-guard/optab.json"
+        metricsDir: "D:/DSH/测试/新优化思路/test-reports/optab-metrics"
